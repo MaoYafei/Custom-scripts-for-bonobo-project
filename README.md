@@ -1,5 +1,5 @@
 # Custom-scripts-for-bonobo-project
-This repository contains scripts about ILS analysis.
+This repository contains scripts about ILS analysis in the paper (XXX).
 
 # General information
 
@@ -9,7 +9,7 @@ This repository contains scripts about ILS analysis.
 
 
 # Citations
-
+	XXX
 	Mao, Yafei, et al. "TREEasy: an automated workflow to infer gene trees, species trees, and phylogenetic networks from multilocus data." (2020): 832-840.
 
 # Warning
