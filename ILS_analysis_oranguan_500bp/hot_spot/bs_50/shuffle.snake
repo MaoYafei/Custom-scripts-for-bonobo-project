@@ -1,0 +1,62 @@
+# Calculate empirical p-value for any overlap between query A and target B (both bed files).
+
+import os
+
+SNAKEMAKE_DIR = os.path.dirname(workflow.snakefile)
+
+shell.executable("/bin/bash")
+#shell.prefix("source %s/env.cfg; set -eo pipefail; " % SNAKEMAKE_DIR)
+
+if config == {}:
+    configfile: "config.json"
+
+BATCH_FILE=config["batch_bed"]
+
+BATCHES = []
+with open(BATCH_FILE) as f:
+    BATCHES = f.read().splitlines()
+    print(BATCHES)
+
+
+rule all:
+        input: expand("output/p_arm_bonobo_interdist.{batch}.txt",batch=BATCHES),expand("output/q_arm_bonobo_interdist.{batch}.txt",batch=BATCHES),"output/combined_p_arm_null.txt","output/combined_q_arm_null.txt"
+	params: sge_opts="-l h_vmem=4G,gpfs=0 -N all -cwd"	
+
+
+# Merge all permuted counts into one combined output file 
+rule merge:
+	input: expand("output/p_arm_bonobo_interdist.{batch}.txt",batch=BATCHES),expand("output/q_arm_bonobo_interdist.{batch}.txt",batch=BATCHES)
+	output: p="output/combined_p_arm_null.txt", q="output/combined_q_arm_null.txt"
+	params: sge_opts="-l h_vmem=4G,gpfs=0 -N bed_merge -cwd"
+	shell: """
+        cat output/p_arm*.txt  >> {output.p}
+        cat output/q_arm*.txt  >> {output.q}
+	"""
+
+
+# Shuffle 50 times per batch
+rule shuffle:
+#	input:
+	output: "output/p_arm_bonobo_interdist.{batch}.txt","output/q_arm_bonobo_interdist.{batch}.txt"
+	log: "log/shuffle_batch_{batch}.log"
+	params: sge_opts="-l h_vmem=8G,gpfs=0 -N bed_shuffle -cwd"
+	shell : """
+        module purge
+        module load modules
+        module load modules-init
+        module load modules-eichler
+        module load modules-gs
+        module load bedtools/2.28.0
+	
+        for i in `seq 1 50`
+            do
+            bedtools shuffle -i ILS_all_sorted.bed -g hg38_simple.genome -incl all_regions_500.bed | bedtools sort -i - > output/shuffled_regions.{wildcards.batch}.bed
+
+            bedtools closest -a <(bedtools intersect -wa -a output/shuffled_regions.{wildcards.batch}.bed -b p_arm.bed | bedtools sort -i -) -b <(bedtools intersect -wa -a output/shuffled_regions.{wildcards.batch}.bed -b p_arm.bed | bedtools sort -i -) -k 2 -d -t first | awk '($7>0){{print $7}}' >> output/p_arm_bonobo_interdist.{wildcards.batch}.txt
+
+            bedtools closest -a <(bedtools intersect -wa -a output/shuffled_regions.{wildcards.batch}.bed -b q_arm.bed | bedtools sort -i -) -b <(bedtools intersect -wa -a output/shuffled_regions.{wildcards.batch}.bed -b q_arm.bed | bedtools sort -i -) -k 2 -d -t first | awk '($7>0){{print $7}}' >> output/q_arm_bonobo_interdist.{wildcards.batch}.txt
+
+            done
+
+	"""
+

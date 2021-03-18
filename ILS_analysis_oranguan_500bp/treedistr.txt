@@ -1,0 +1,16 @@
+15
+(orangutan,(gorilla,((bonobo,chimp),human))); 1581811
+(orangutan,(((bonobo,chimp),gorilla),human)); 407472
+(orangutan,(((bonobo,human),chimp),gorilla)); 34723
+(orangutan,((gorilla,human),(bonobo,chimp))); 387309
+(orangutan,(((gorilla,human),chimp),bonobo)); 6959
+(orangutan,(((chimp,human),bonobo),gorilla)); 28603
+(orangutan,(((bonobo,gorilla),chimp),human)); 4817
+(orangutan,(((bonobo,human),gorilla),chimp)); 5522
+(orangutan,((chimp,gorilla),(bonobo,human))); 5837
+(orangutan,(((chimp,gorilla),human),bonobo)); 1935
+(orangutan,(((chimp,gorilla),bonobo),human)); 4569
+(orangutan,((chimp,human),(bonobo,gorilla))); 6030
+(orangutan,(((chimp,human),gorilla),bonobo)); 5701
+(orangutan,(((bonobo,gorilla),human),chimp)); 2019
+(orangutan,(((gorilla,human),bonobo),chimp)); 6954
